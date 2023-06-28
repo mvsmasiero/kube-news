@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-news-config
+  labels:
+    app: kube-news
+data:
+  DB_DATABASE: kube-news
+  DB_USERNAME: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-news
+spec:
+  selector:
+    matchLabels:
+      app: kube-news
+  template:
+    metadata:
+      labels:
+        app: kube-news
+    spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: alpine:latest
+        command: ['sh', '-c', 'until nc -z postgres 5432; do sleep 1; done;']
+      containers:
+      - name: kube-news
+        image: mvsmasiero/kube-news
+        ports:
+        - containerPort: 8080
+        envFrom:
+          - configMapRef:
+              name: kube-news-config
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-news
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: kube-news
+  type: LoadBalancer
