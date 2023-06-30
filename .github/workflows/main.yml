@@ -46,6 +46,7 @@ jobs:
 
       - name: Deploy da aplicação
         uses: Azure/k8s-deploy@v4.9
+        run: echo "Listando arquivos\n" && ls -la
         with:
           manifests: |
             ./deployment-kubenews.yaml
