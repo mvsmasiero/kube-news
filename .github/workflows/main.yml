@@ -44,13 +44,10 @@ jobs:
         run: |
           aws eks update-kubeconfig --name eks-imersao --region sa-east-1
 
-      - name: Listar arquivo
-        run: echo "Listando arquivos\n" && ls -la
-
       - name: Deploy da aplicação
         uses: Azure/k8s-deploy@v4.9
         with:
           manifests: |
-            ./deployment-kubenews.yaml
+            ./deployment-kubenews.yml
           images: |
             mvsmasiero/kube-news:v${{ github.run_number }}
